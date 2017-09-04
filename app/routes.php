@@ -17,14 +17,14 @@
 
 		//Doctors Routes
 		['GET', '/medecin/liste', 'Doctors#index', 'doctors_index'],
-		['GET', '/medecin/details', 'Doctors#read', 'doctor_details'],
+		['GET', '/medecin/[i:id]', 'Doctors#read', 'doctor_details'],
 		['GET|POST', '/medecin/create', 'Doctors#create', 'doctor_create'],
 		['GET|POST', '/medecin/[i:id]/edit', 'Doctors#update', 'doctor_update'],
 		['GET', '/medecin/[i:id]/delete', 'Doctors#delete', 'doctor_delete'],
 
 		//Institutions Routes
 		['GET', '/etablissement/liste', 'Institutions#index', 'instutions_index'],
-		['GET', '/etablissement/details', 'Institutions#read', 'instution_details'],
+		['GET', '/etablissement/[i:id]', 'Institutions#read', 'instution_details'],
 		['GET|POST', '/etablissement/create', 'Institutions#create', 'instution_create'],
 		['GET|POST', '/etablissement/[i:id]/edit', 'Institutions#update', 'instution_update'],
 		['GET', '/etablissement/[i:id]/delete', 'Institutions#delete', 'instution_delete'],

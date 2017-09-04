@@ -27,7 +27,7 @@ class UsersController extends Controller
 			$email=$_SESSION['user']['email'];
 			$firstname=$_SESSION['user']['firstname'];
 			$lastname=$_SESSION['user']['lastname'];
-			$birthdate=$_SESSION['user']['birthdate'];
+			$birthday=$_SESSION['user']['birthday'];
 			$autism=$_SESSION['user']['autism'];
 
 		} else {
@@ -38,7 +38,7 @@ class UsersController extends Controller
 				'email'=>$email,
 				'firstname'=>$firstname,
 				'lastname'=>$lastname,
-				'birthdate'=>$birthdate,
+				'birthday'=>$birthday,
 				'autism'=>$autism,
 			]);
 	}
@@ -78,7 +78,7 @@ class UsersController extends Controller
 		$email=null;
 		$firstname=null;
 		$lastname=null;
-		$birthdate=null;
+		$birthday=null;
 		$state=null;
 		$situation=null;
 		$autism=null;
@@ -94,7 +94,7 @@ class UsersController extends Controller
  			$repeat_password=strip_tags(trim($_POST['repeat_password']));
 			$firstname=strip_tags(trim($_POST['firstname']));
 			$lastname=strip_tags(trim($_POST['lastname']));
-			$birthdate=strip_tags(trim($_POST['birthdate']));
+			$birthday=strip_tags(trim($_POST['birthday']));
 			$departement=strip_tags(trim($_POST['departement']));
 			$situation=strip_tags(trim($_POST['situation']));
 			$autism=strip_tags(trim($_POST['autism']));
@@ -105,77 +105,87 @@ class UsersController extends Controller
 			if (empty($email))
 			{
 				$save=false;
-				$error="le champ email est vide";
+				$error['email']="le champ email est vide";
 			}
 
 			else if (!filter_var($email,FILTER_VALIDATE_EMAIL))
 			{
 				$save=false;
-				$error="l'email n'est pas valide";
+				$error['email']="l'email n'est pas valide";
 			} 
 			else if ($this->UserManager->emailExists($email))
 			{
 				$save=false;
-				$error="l'email a déjà été utilisée";
+				$error['email']="l'email a déjà été utilisée";
 			} 
 
 			// ---- Mot de passe ------
 			if (empty($password))
 			{
 				$save=false;
-				$error="le champ mot de passe est vide";
+				$error['password']="le champ mot de passe est vide";
 			}
 			
 			else if ($password!==$repeat_password)
 			{
 				$save=false;
-				$error="";
+				$error['repeat_password']="Les mot de passe ne sont pas identique";
 			}
 			if (empty($firstname))
 			{
 				$save=false;
-				$error="le champ prenom est vide";
+				$error['firstname']="le champ prenom est vide";
 			}
 			if (empty($lastname))
 			{
 				$save=false;
-				$error="le champ nom est vide";
+				$error['lastname']="le champ nom est vide";
 			}
-			if (empty($birthdate))
+			if (empty($birthday))
 			{
 				$save=false;
-				$error="le champ date de naissance est vide";
+				$error['birthday']="le champ date de naissance est vide";
 			}
+			// ----- Departement -----
 			if (empty($departement))
 			{
 				$save=false;
-				$error='le champ departement est vide';
+				$error['departement']='le champ departement est vide';
+			}else {
+				//Instancier le Manager Departement
+				$DepartementsManager= new \Manager\DepartementsManager;
+				$id_departement=$DepartementsManager->findByName($departement);
 			}
+			
 			if (empty($situation))
 			{
 				$save=false;
-				$error='le champ situation est vide';
+				$error['situation']='le champ situation est vide';
 			}
-			if (empty($autism))
+			/*if (empty($autism))
 			{
 				$save=false;
 				$error='le champs autisme est vide';
-			}
+			}*/
+
 			if ($save)
 			{
 				//Haschage du password
 				$password=password_hash($password,PASSWORD_DEFAULT);
 				//introduction des données dans la BDD
-				$user=$this->AuthManager->insert([
+				$user=$this->UserManager->insert([
 						'email'=>$email,
 						'password'=>$password,
 						'firstname'=>$firstname,
 						'lastname'=>$lastname,
-						'birthdate'=>$birthdate,
-						'departement'=>$departement,
+						'birthday'=>$birthday,
+						'id_departement'=>$id_departement,
 						'situation'=>$situation,
 						'autism'=>$autism,
+						'roles'=>'user'
 					]);
+				var_dump($user);
+				exit;
 				//Ajouter l'utilisateur dans la session 
 				$this->AuthManager->logUserIn($user);
 				//Rediriger vers la page de profile 
@@ -186,10 +196,10 @@ class UsersController extends Controller
 				'email'=>$email,
 				'firstname'=>$firstname,
 				'lastname'=>$lastname,
-				'birthdate'=>$birthdate,
+				'birthday'=>$birthday,
 				'situation'=>$situation,
 				'autism'=>$autism,
-				'error'=>$error
+				'errors'=>$error
 			]);
 	}
 	public function lost_pwd ()
@@ -228,7 +238,8 @@ class UsersController extends Controller
 			$password=$_POST['password'];
 			$repeat_password=$_POST['repeat_password'];
 			//Récupere le token 
-			$token_data=$this->UserManager->findByToken($token);
+			$TokensManager= new \Manager\TokensManager;
+			$token_data=$TokensManager->findByToken($token);
 			//Verifier les mdp 
 			if ($password!==$repeat_password)
 			{
