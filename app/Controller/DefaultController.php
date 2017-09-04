@@ -32,7 +32,7 @@ class DefaultController extends Controller
 			if (!isset($email))
 			{
 				$save=false;
-				$error="le champ mail est vide"
+				$error="le champ mail est vide";
 			}
 			//vérifie si l'email est valide
 			else if (!filter_var($email,FILTER_VALIDATE_EMAIL))
@@ -67,8 +67,9 @@ class DefaultController extends Controller
 						'message'=>$message
 					]);
 
-			}	
-		// 
+			}
+		}	
+	
 		$this->show('default/contact',[
 				'error'=>$error,
 			]);
